@@ -15,25 +15,41 @@ navLinks.querySelectorAll('a').forEach(link => {
     });
 });
 
-// Form submission
+// Form submission via Formspree
 const form = document.getElementById('contactForm');
+const submitBtn = form.querySelector('button[type="submit"]');
+
 form.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData);
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
 
-    // Replace this with your actual form handler (Formspree, Netlify Forms, etc.)
-    console.log('Form submitted:', data);
-
-    // Show success message
-    form.innerHTML = `
-        <div style="text-align: center; padding: 40px 0;">
-            <div style="font-size: 2.5rem; margin-bottom: 16px;">&#10003;</div>
-            <h3 style="margin-bottom: 8px;">Message sent!</h3>
-            <p style="color: #64748b;">We'll get back to you within 24 hours.</p>
-        </div>
-    `;
+    fetch('https://formspree.io/f/mvzvgbvd', {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(response => {
+        if (response.ok) {
+            form.innerHTML = `
+                <div style="text-align: center; padding: 40px 0;">
+                    <div style="font-size: 2.5rem; margin-bottom: 16px;">&#10003;</div>
+                    <h3 style="margin-bottom: 8px;">Message sent!</h3>
+                    <p style="color: #64748b;">We'll get back to you within 24 hours.</p>
+                </div>
+            `;
+        } else {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Message';
+            alert('Something went wrong. Please try again or email us directly.');
+        }
+    })
+    .catch(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Message';
+        alert('Something went wrong. Please try again or email us directly.');
+    });
 });
 
 // Smooth scroll offset for fixed nav
